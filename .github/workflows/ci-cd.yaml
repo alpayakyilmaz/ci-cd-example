@@ -46,27 +46,8 @@ jobs:
         #chmod 600 ~/.kube/config
       shell: powershell # Shell'i açıkça powershell olarak belirtmek daha güvenli olabilir
     - name: Deploy to Minikube
-      run: |
-        # Minikube'de çalışan Docker daemon'ına erişimi etkinleştirin.
-        # Bu, özellikle Minikube'nin kendi Docker daemon'ını kullanıyorsanız önemlidir.
-        # eval $(minikube docker-env) # Bu komut PowerShell'de farklı çalışabilir.
-                                    # Alternatif olarak Docker'ın Minikube ile entegrasyonu için:
-                                    # Remove-Item Env:DOCKER_TLS_VERIFY -ErrorAction SilentlyContinue
-                                    # Remove-Item Env:DOCKER_HOST -ErrorAction SilentlyContinue
-                                    # Remove-Item Env:DOCKER_CERT_PATH -ErrorAction SilentlyContinue
-                                    # Remove-Item Env:DOCKER_MACHINE_NAME -ErrorAction SilentlyContinue
-                                    # minikube.exe docker-env | Invoke-Expression # Powershell için
-
-        # Kubernetes YAML dosyanızın yolunu ve adını buraya yazın (örn: deployment.yaml)
-        # Bu dosyayı deponuzun kök dizininde bulundurmalısınız.
-        # Eğer YAML dosyanızdaki imaj tag'i 'latest' ise aşağıdaki sed komutuna ihtiyacınız olmayabilir.
-        # Çünkü 'latest' tag'i zaten Docker Hub'da güncel olanı çeker.
-        # Eğer spesifik SHA kullanmaya devam ediyorsanız veya YAML dosyanızda eski bir versiyon varsa,
-        # sed komutu ile imaj adını ve tag'ini ${{ github.sha }} ile güncelleyebilirsiniz:
-        sed -i 's|image: alpayakyilmaz/myappimage:.*|image: alpayakyilmaz/myappimage:${{ github.sha }}|' deployment.yaml # Kendi YAML dosyanızın yolunu girin
-        # Veya deployment.yaml'ınızda 'latest' kullanıyorsanız ve her zaman en son imajı çekmek istiyorsanız,
-        # imagePullPolicy: Always eklediğinizden emin olun ve bu sed satırını silin/yorumlayın.
-
+      run: |        
         kubectl apply -f deployment.yaml # Güncellenmiş YAML'ı Minikube'ye uygula
       env:
         KUBECONFIG: ~/.kube/config # kubectl'in doğru kubeconfig'i kullanmasını sağlar
+      shell: powershell
