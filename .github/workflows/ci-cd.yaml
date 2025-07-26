@@ -1,0 +1,49 @@
+name: CI/CD Pipeline - Build and Push Only
+
+on:
+  push:
+    branches:
+      - master # Kodu push ettiğiniz branch'in adı (master olarak varsayıyoruz)
+
+jobs:
+  build-and-push: # Job adını daha anlaşılır hale getirdik
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    - name: Build and Push Docker Image
+      uses: docker/build-push-action@v5
+      with:
+        context: . # Dockerfile'ınızın bulunduğu dizin (genellikle proje kökü)
+        push: true
+        # Image adınızı ve tag'lerinizi güncellemeyi unutmayın!
+        # Örneğin: your-dockerhub-username/your-app-name:${{ github.sha }}
+        # Veya: your-dockerhub-username/your-app-name:latest
+        tags: your-dockerhub-username/your-app-name:${{ github.sha }}
+        # Eğer isterseniz 'latest' tag'ini de ekleyebilirsiniz:
+        # tags: your-dockerhub-username/your-app-name:${{ github.sha }},your-dockerhub-username/your-app-name:latest
+
+    # --- Minikube ile ilgili kısımları aşağıdaki gibi kaldırıyoruz veya yorum satırı yapıyoruz ---
+    # - name: Setup Kubeconfig for Minikube
+    #   run: |
+    #     mkdir -p ~/.kube
+    #     echo "${{ secrets.KUBE_CONFIG_BASE64 }}" | base64 -d > ~/.kube/config
+    #     chmod 600 ~/.kube/config
+
+    # - name: Deploy to Minikube
+    #   run: |
+    #     sed -i 's|your-dockerhub-username/your-app-name:.*|your-dockerhub-username/your-app-name:${{ github.sha }}|' deployment.yaml
+    #     kubectl apply -f deployment.yaml
+    #   env:
+    #     KUBECONFIG: ~/.kube/config
