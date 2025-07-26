@@ -38,10 +38,10 @@ jobs:
         New-Item -Path "~/.kube" -ItemType Directory -ErrorAction SilentlyContinue
         [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("${{ secrets.KUBE_CONFIG_BASE64 }}")) | Out-File -FilePath ~/.kube/config -Encoding UTF8
       shell: powershell
-
-    # Uygulamayı Minikube'ye dağıtır.
-    # deployment.yaml dosyasında 'latest' tag'i ve 'imagePullPolicy: Always' olduğu için,
-    # her zaman en güncel imajı çekecektir.
+    - name: Verify Kubeconfig Content # YENİ DEBUG ADIMI
+      run: |
+       Get-Content ~/.kube/config # Kubeconfig dosyasının içeriğini yazdırır
+  shell: powershell
     - name: Deploy to Minikube
       run: |
         kubectl apply -f deployment.yaml # deployment.yaml deponun kök dizininde olduğu varsayılıyor
