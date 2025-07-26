@@ -41,7 +41,7 @@ jobs:
     - name: Verify Kubeconfig Content # YENİ DEBUG ADIMI
       run: |
        Get-Content ~/.kube/config # Kubeconfig dosyasının içeriğini yazdırır
-  shell: powershell
+      shell: powershell
     - name: Deploy to Minikube
       run: |
         kubectl apply -f deployment.yaml # deployment.yaml deponun kök dizininde olduğu varsayılıyor
