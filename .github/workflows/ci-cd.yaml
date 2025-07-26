@@ -43,7 +43,7 @@ jobs:
         # Kubeconfig dosyasını GitHub Secrets'tan çekip Base64'ten çözerek dosyaya yazar
         [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("${{ secrets.KUBE_CONFIG_BASE64 }}")) | Out-File -FilePath ~/.kube/config -Encoding UTF8
         # Dosya izinlerini ayarlar (Linux/macOS için önemli, Windows için iyi bir pratik)
-        chmod 600 ~/.kube/config
+        #chmod 600 ~/.kube/config
       shell: powershell # Shell'i açıkça powershell olarak belirtmek daha güvenli olabilir
     - name: Deploy to Minikube
       run: |
