@@ -30,7 +30,7 @@ jobs:
         # Image adınızı ve tag'lerinizi güncellemeyi unutmayın!
         # Örneğin: your-dockerhub-username/your-app-name:${{ github.sha }}
         # Veya: your-dockerhub-username/your-app-name:latest
-        tags: your-dockerhub-username/your-app-name:${{ github.sha }}
+        tags: alpayakyilmaz/myappimage:${{ github.sha }},alpayakyilmaz/myappimage:latest
         # Eğer isterseniz 'latest' tag'ini de ekleyebilirsiniz:
         # tags: your-dockerhub-username/your-app-name:${{ github.sha }},your-dockerhub-username/your-app-name:latest
 
