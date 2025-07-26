@@ -1,0 +1,3 @@
+is_global = true
+build_property.RootNamespace = AspNetCore_Docerize_Sample
+build_property.ProjectDir = C:\Dockerize_Core\AspNetCore_Docerize_Sample\AspNetCore_Docerize_Sample\

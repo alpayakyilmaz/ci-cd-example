@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "AJlo3UiMu0u9/6f2R8Jxet3CZmvLNaWLxTUAkSHaRTDvUREHwkChEvNgAtsJjqVcw73h/Gw8E3ghIUqj9nBaTg==",
+  "success": true,
+  "projectFilePath": "C:\\Dockerize_Core\\AspNetCore_Docerize_Sample\\AspNetCore_Docerize_Sample\\AspNetCore_Docerize_Sample.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Alpay\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.11.1\\microsoft.visualstudio.azure.containers.tools.targets.1.11.1.nupkg.sha512"
+  ],
+  "logs": []
+}
