@@ -41,7 +41,7 @@ jobs:
         # Mevcutsa hata vermeden geçmesi için -ErrorAction SilentlyContinue kullanın
         New-Item -Path "~/.kube" -ItemType Directory -ErrorAction SilentlyContinue
         # Kubeconfig dosyasını GitHub Secrets'tan çekip Base64'ten çözerek dosyaya yazar
-        echo "${{ secrets.KUBE_CONFIG_BASE64 }}" | base64 -d > ~/.kube/config
+        [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("${{ secrets.KUBE_CONFIG_BASE64 }}")) | Out-File -FilePath ~/.kube/config -Encoding UTF8
         # Dosya izinlerini ayarlar (Linux/macOS için önemli, Windows için iyi bir pratik)
         chmod 600 ~/.kube/config
       shell: powershell # Shell'i açıkça powershell olarak belirtmek daha güvenli olabilir
