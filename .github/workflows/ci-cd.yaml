@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - Build and Push Only
+name: CI/CD Pipeline - Build, Push and Deploy to Minikube # Pipeline adını güncelledik
 
 on:
   push:
@@ -6,8 +6,10 @@ on:
       - master # Kodu push ettiğiniz branch'in adı (master olarak varsayıyoruz)
 
 jobs:
-  build-and-push: # Job adını daha anlaşılır hale getirdik
-    runs-on: ubuntu-latest
+  build-push-deploy: # Job adını güncelledik
+    # BURAYI KENDİ RUNNER'INIZIN ETİKETİYLE GÜNCELLEYİN!
+    # Eğer yapılandırırken 'minikube-runner' verdiyseniz, aşağıdaki gibi kullanın:
+    runs-on: minikube-runner # Veya 'self-hosted' de kullanabilirsiniz eğer sadece bir self-hosted runner'ınız varsa
 
     steps:
     - name: Checkout Code
@@ -28,22 +30,42 @@ jobs:
         context: . # Dockerfile'ınızın bulunduğu dizin (genellikle proje kökü)
         push: true
         # Image adınızı ve tag'lerinizi güncellemeyi unutmayın!
-        # Örneğin: your-dockerhub-username/your-app-name:${{ github.sha }}
-        # Veya: your-dockerhub-username/your-app-name:latest
+        # Daha önce belirlediğimiz gibi: alpayakyilmaz/myappimage
         tags: alpayakyilmaz/myappimage:${{ github.sha }},alpayakyilmaz/myappimage:latest
-        # Eğer isterseniz 'latest' tag'ini de ekleyebilirsiniz:
-        # tags: your-dockerhub-username/your-app-name:${{ github.sha }},your-dockerhub-username/your-app-name:latest
 
-    # --- Minikube ile ilgili kısımları aşağıdaki gibi kaldırıyoruz veya yorum satırı yapıyoruz ---
-    # - name: Setup Kubeconfig for Minikube
-    #   run: |
-    #     mkdir -p ~/.kube
-    #     echo "${{ secrets.KUBE_CONFIG_BASE64 }}" | base64 -d > ~/.kube/config
-    #     chmod 600 ~/.kube/config
+    # --- Minikube Deployment Adımlarını GERİ GETİRİYORUZ ---
+    # Bu adımlar, Kubeconfig dosyasını hazırlar ve uygulamanızı dağıtır.
+    - name: Setup Kubeconfig for Minikube
+      run: |
+        # Bu dizini Windows'ta da oluşturduğundan emin olun
+        mkdir -p ~/.kube
+        # Kubeconfig dosyasını GitHub Secrets'tan çekip Base64'ten çözerek dosyaya yazar
+        echo "${{ secrets.KUBE_CONFIG_BASE64 }}" | base64 -d > ~/.kube/config
+        # Dosya izinlerini ayarlar (Linux/macOS için önemli, Windows için iyi bir pratik)
+        chmod 600 ~/.kube/config
 
-    # - name: Deploy to Minikube
-    #   run: |
-    #     sed -i 's|your-dockerhub-username/your-app-name:.*|your-dockerhub-username/your-app-name:${{ github.sha }}|' deployment.yaml
-    #     kubectl apply -f deployment.yaml
-    #   env:
-    #     KUBECONFIG: ~/.kube/config
+    - name: Deploy to Minikube
+      run: |
+        # Minikube'de çalışan Docker daemon'ına erişimi etkinleştirin.
+        # Bu, özellikle Minikube'nin kendi Docker daemon'ını kullanıyorsanız önemlidir.
+        # eval $(minikube docker-env) # Bu komut PowerShell'de farklı çalışabilir.
+                                    # Alternatif olarak Docker'ın Minikube ile entegrasyonu için:
+                                    # Remove-Item Env:DOCKER_TLS_VERIFY -ErrorAction SilentlyContinue
+                                    # Remove-Item Env:DOCKER_HOST -ErrorAction SilentlyContinue
+                                    # Remove-Item Env:DOCKER_CERT_PATH -ErrorAction SilentlyContinue
+                                    # Remove-Item Env:DOCKER_MACHINE_NAME -ErrorAction SilentlyContinue
+                                    # minikube.exe docker-env | Invoke-Expression # Powershell için
+
+        # Kubernetes YAML dosyanızın yolunu ve adını buraya yazın (örn: deployment.yaml)
+        # Bu dosyayı deponuzun kök dizininde bulundurmalısınız.
+        # Eğer YAML dosyanızdaki imaj tag'i 'latest' ise aşağıdaki sed komutuna ihtiyacınız olmayabilir.
+        # Çünkü 'latest' tag'i zaten Docker Hub'da güncel olanı çeker.
+        # Eğer spesifik SHA kullanmaya devam ediyorsanız veya YAML dosyanızda eski bir versiyon varsa,
+        # sed komutu ile imaj adını ve tag'ini ${{ github.sha }} ile güncelleyebilirsiniz:
+        sed -i 's|image: alpayakyilmaz/myappimage:.*|image: alpayakyilmaz/myappimage:${{ github.sha }}|' deployment.yaml # Kendi YAML dosyanızın yolunu girin
+        # Veya deployment.yaml'ınızda 'latest' kullanıyorsanız ve her zaman en son imajı çekmek istiyorsanız,
+        # imagePullPolicy: Always eklediğinizden emin olun ve bu sed satırını silin/yorumlayın.
+
+        kubectl apply -f deployment.yaml # Güncellenmiş YAML'ı Minikube'ye uygula
+      env:
+        KUBECONFIG: ~/.kube/config # kubectl'in doğru kubeconfig'i kullanmasını sağlar

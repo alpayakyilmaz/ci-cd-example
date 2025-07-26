@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
       - name: my-dotnet-app-container
-        image: alpayakyilmaz/myappimage:v1.0 # <-- Kendi Docker Hub imaj yolun ve etiketin
+        image: alpayakyilmaz/myappimage:latest # <-- Kendi Docker Hub imaj yolun ve etiketin
+        imagePullPolicy: Always 
         ports:
         - containerPort: 4500 # Uygulamanın dinlediği port (Dockerfile'daki EXPOSE ile aynı)
         env: # Eğer ASPNETCORE_URLS gibi env değişkenleri varsa buraya ekleyebilirsin
