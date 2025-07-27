@@ -1,0 +1,38 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-dotnet-app-deployment
+  labels:
+    app: my-dotnet-app
+spec: 
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-dotnet-app
+  template:
+    metadata:
+      labels:
+        app: my-dotnet-app
+    spec:
+      containers:
+      - name: my-dotnet-app-container
+        image: alpayakyilmaz/aspnetcore-sample-app:latest # <-- Kendi Docker Hub imaj yolun ve etiketin
+        imagePullPolicy: Always 
+        ports:
+        - containerPort: 4500 # Uygulamanın dinlediği port (Dockerfile'daki EXPOSE ile aynı)
+        env: # Eğer ASPNETCORE_URLS gibi env değişkenleri varsa buraya ekleyebilirsin
+        - name: ASPNETCORE_URLS
+          value: "http://*:4500" # HTTPS hatası almamak için HTTP olarak ayarlıyoruz
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-dotnet-app-service
+spec:
+  selector:
+    app: my-dotnet-app # Bu servis, yukarıdaki Deployment'ın Pod'larını hedefleyecek
+  ports:
+    - protocol: TCP
+      port: 80       # Servisin dışarıdan erişileceği port (tarayıcıdan gireceğin port)
+      targetPort: 4500 # Pod'un içindeki uygulamanın dinlediği port
+  type: NodePort     # Minikube için dışarıdan erişim sağlamanın en kolay yolu
