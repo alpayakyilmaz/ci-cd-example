@@ -1,12 +1,12 @@
-name: CI/CD Pipeline - Build and Deploy to Kubernetes
+name: CI/CD Pipeline - Build and Push to Docker Hub
 
 on:
   push:
     branches:
-      - master
+      - master  # veya main
 
 jobs:
-  build-and-deploy:
+  build-and-push-to-docker-hub:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,15 +25,10 @@ jobs:
 
     - name: Build Docker Image
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/aspnetcore-sample-app:${{ steps.date.outputs.DATE }} .
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/aspnetcore-sample-app:${{ steps.date.outputs.DATE }} \
+                     -t ${{ secrets.DOCKER_USERNAME }}/aspnetcore-sample-app:latest .
+
+    - name: Push Docker Image to Docker Hub
+      run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/aspnetcore-sample-app:${{ steps.date.outputs.DATE }}
-
-    - name: Set up Kubeconfig
-      run: |
-        mkdir -p ~/.kube
-        echo "${{ secrets.KUBE_CONFIG_BASE64 }}" | base64 -d > ~/.kube/config
-
-    - name: Update Kubernetes deployment image
-      run: |
-        kubectl set image deployment/my-dotnet-app-deployment \
-          my-dotnet-app-container=${{ secrets.DOCKER_USERNAME }}/aspnetcore-sample-app:${{ steps.date.outputs.DATE }} --record
+        docker push ${{ secrets.DOCKER_USERNAME }}/aspnetcore-sample-app:latest
