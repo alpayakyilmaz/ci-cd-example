@@ -30,21 +30,3 @@ jobs:
         push: true
         # Image adınız ve tag'lerinizi güncellemeyi unutmayın!
         tags: alpayakyilmaz/myappimage:${{ github.sha }},alpayakyilmaz/myappimage:latest
-
-    # --- Minikube Deployment Adımları ---
-    # Kubeconfig dosyasını hazırlar.
-    - name: Setup Kubeconfig for Minikube
-      run: |
-        New-Item -Path "~/.kube" -ItemType Directory -ErrorAction SilentlyContinue
-        [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("${{ secrets.KUBE_CONFIG_BASE64 }}")) | Out-File -FilePath ~/.kube/config -Encoding UTF8
-      shell: powershell
-    - name: Verify Kubeconfig Content # YENİ DEBUG ADIMI
-      run: |
-       Get-Content ~/.kube/config # Kubeconfig dosyasının içeriğini yazdırır
-      shell: powershell
-    - name: Deploy to Minikube
-      run: |
-        kubectl apply -f deployment.yaml # deployment.yaml deponun kök dizininde olduğu varsayılıyor
-      env:
-        KUBECONFIG: ~/.kube/config
-      shell: powershell
