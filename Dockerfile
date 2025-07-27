@@ -4,7 +4,7 @@ COPY *.csproj .
 RUN dotnet restore
 COPY . .
 # Yayımlanmış çıktıları /app/publish_output dizinine kaydet
-RUN dotnet publish AspNetCore_Docerize_Sample.csproj -c Release -o out
+RUN dotnet publish AspNetCore_Docerize_Sample.csproj -c Release -o out  
 # Çalışma dizinini yayımlanmış çıktıların olduğu dizine ayarla
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
